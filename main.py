@@ -4,15 +4,15 @@ import pygame
 import player
 import levelmanager
 
-SCREENWIDTH = 600
-SCREENHEIGHT = 800
+SCREENWIDTH = 1280
+SCREENHEIGHT = 720
 screen=pygame.display.set_mode([SCREENWIDTH, SCREENHEIGHT])
-screen.fill([200, 200, 255])
+
+screen.fill([0, 0, 0])
 pygame.display.flip()
 
-testroom = dungeon.Dungeon(10,11,11,50)
+testroom = dungeon.Dungeon(10,9,16,80)
 testroom.createdungeon(screen)
-testroom.drawtempgrid(screen)
 user = player.Player(0)
 clock = pygame.time.Clock()
 run = True
@@ -23,3 +23,5 @@ while run:
         manager.map(testroom,screen,user,clock)
     elif manager.currentscreen == "room":
         manager.room(screen,clock)
+    elif manager.currentscreen == "quit":
+        run = False

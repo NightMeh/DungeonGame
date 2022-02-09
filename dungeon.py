@@ -11,6 +11,16 @@ class Dungeon:
     self.roomloc = []
     self.worlddata = []
     self.room = []
+    self.imageconstant = 1.6
+    unclearedroomimage = pygame.image.load(r'Images\Rooms\UnclearedRoom.png').convert()
+    treasureroomimage = pygame.image.load(r'Images\Rooms\Treasure.png').convert()
+    entranceroomimage = pygame.image.load(r'Images\Rooms\Entrance.png').convert()
+    currentroomimage = pygame.image.load(r'Images\Rooms\CurrentRoomIcon.png').convert_alpha()
+    self.roomlist = [currentroomimage,unclearedroomimage,entranceroomimage,treasureroomimage]
+    for x in range(len(self.roomlist)):
+      self.roomlist[x] = pygame.transform.scale(self.roomlist[x],(block_size/self.imageconstant,block_size/self.imageconstant))
+
+    
 
   def drawtempgrid(self,screen):
     for y in range(self.blockheight):
@@ -40,13 +50,20 @@ class Dungeon:
     midloc = [midx,midy]
     print(midloc)
     roomcount = 1
-    self.room.append(roomscript.Room(roomcount,"room",[midx,midy]))
+    self.room.append(roomscript.Room(roomcount,"entrance",[midx,midy]))
     return midloc,roomcount
+
+  def drawimage(self,screen,location,image):
+    locx = location[0]
+    locy = location[1]
+    offset = (self.block_size - (self.block_size / self.imageconstant))/2
+    screen.blit(image, (((locx)*self.block_size)+offset,((locy)*self.block_size)+offset,self.block_size/self.imageconstant,self.block_size/self.imageconstant))
+    pygame.display.flip()
 
   def drawdot(self,screen,location,colour):
     locx = location[0]
     locy = location[1]
-    pygame.draw.rect(screen, colour, (((locx)*self.block_size)+self.block_size/4,((locy)*self.block_size)+self.block_size/4,self.block_size/2,self.block_size/2),0)
+    pygame.draw.rect(screen, colour, (((locx)*self.block_size)+self.block_size/4,((locy)*self.block_size)+self.block_size/4,self.block_size/2,self.block_size/2),2)
     pygame.display.flip()
 
   def findsurroundingsquares(self,centre):
@@ -90,20 +107,20 @@ class Dungeon:
 
 
     roomcount+=1
-    self.drawdot(screen,newroomloc,[0,0,0])
+    #self.drawdot(screen,newroomloc,[0,0,0])
     #print("randchosen",newroomloc)
     surroundlist.remove(newroomloc)
     #print("roomloc b4",roomloc)
     self.roomloc.append(newroomloc)
     #print("roomloc after",roomloc)
-    self.room.append(roomscript.Room(roomcount,"test",newroomloc))
+    self.room.append(roomscript.Room(roomcount,"",newroomloc))
     return newroomloc,roomcount,failed
 
   def createdungeon(self,screen):
     self.getworlddata()
     midloc,roomcount = self.drawmiddleroom(screen)
     self.roomloc.append(midloc)
-    self.drawdot(screen,midloc,[0,0,0])
+    #self.drawdot(screen,midloc,[0,0,0])
     surroundlist = self.findsurroundingsquares(midloc)
     #print("surroundlist",surroundlist)
     for x in range(2):
@@ -143,6 +160,43 @@ class Dungeon:
     else:
       print("nah")
     return
+
+  def drawcorridors(self,screen,image):
+    spacebetweenrooms = self.block_size - (self.block_size / self.imageconstant)
+    for x in range(len(self.room)):
+      surroundlist2 = []
+      surroundlist = self.findsurroundingsquares(self.room[x].roomlocation)
+      print("location",self.room[x].roomlocation)
+      for element in self.roomloc: #remove the places with rooms already
+        if element in surroundlist and element in self.roomloc:
+          surroundlist2.append(element)
+      for item in range (len(surroundlist2)):
+        offset = spacebetweenrooms
+        offsetx = self.block_size/2
+        offsety = self.block_size/2
+        print(surroundlist2[item])
+        print(surroundlist2)
+        print([self.room[item].roomlocation[0],self.room[x].roomlocation[1]-1],[self.room[x].roomlocation[0]+1,self.room[x].roomlocation[1]],[self.room[x].roomlocation[0],self.room[x].roomlocation[1]+1],[self.room[x].roomlocation[0]-1,self.room[x].roomlocation[1]])
+        if surroundlist2[item] == [self.room[x].roomlocation[0],self.room[x].roomlocation[1]-1]:
+          offsety -= self.block_size/2
+          print("north")
+        elif surroundlist2[item] == [self.room[x].roomlocation[0]+1,self.room[x].roomlocation[1]]:
+          offsetx += self.block_size/2
+          print("east")
+        elif surroundlist2[item] == [self.room[x].roomlocation[0],self.room[x].roomlocation[1]+1]:
+          offsety = self.block_size/2
+          print("south")
+        elif surroundlist2[item] == [self.room[x].roomlocation[0]-1,self.room[x].roomlocation[1]]:
+          offsetx -= self.block_size/2
+          print("west")
+        else:
+          print("none")
+        pygame.draw.circle(screen,[255,255,255], (((surroundlist2[item][0])*self.block_size)+offsetx,((surroundlist2[item][1])*self.block_size)+offsety),self.block_size/10)
+        #print("room",x,surroundlist2,"location",self.room[x].roomlocation)
+      
+      
+
+
 
   def drawrooms(self,screen):
     for x in range(self.nrooms+3):

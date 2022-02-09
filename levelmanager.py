@@ -6,25 +6,34 @@ class LevelManager:
         self.currentlayout = room
         self.currentscreen = "map"
         self.ifBattle = False
+        
+        
 
     def map(self,dungeon,screen,user,clock):
         map = True
-        screen.fill([200, 200, 255])
-        dungeon.drawtempgrid(screen)
+        screen.fill([0, 0, 0])
         dungeon.drawrooms(screen)
+        needUpdate = True
+        dungeon.drawcorridors(screen,dungeon.roomlist[1])
         while map:
-            for x in range(len(dungeon.room)):
-                if dungeon.room[x].roomlocation == dungeon.room[user.currentroom].roomlocation:
-                    dungeon.drawdot(screen,dungeon.room[user.currentroom].roomlocation,[255,0,0])
-                else:
-                    dungeon.drawdot(screen,dungeon.room[x].roomlocation,[0,0,0])
-            
+            if needUpdate == True:
+                for x in range(len(dungeon.room)):
+                    if dungeon.room[x].roomtype == "entrance":
+                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[2])
+                    if dungeon.room[x].roomlocation == dungeon.room[user.currentroom].roomlocation:
+                        dungeon.drawimage(screen,dungeon.room[user.currentroom].roomlocation,dungeon.roomlist[0])
+                        needUpdate = False
+                    elif dungeon.room[x].roomlocation != dungeon.room[user.currentroom].roomlocation and dungeon.room[x].roomtype != "entrance":
+                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[1])
+                        needUpdate = False
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
+                    self.currentscreen = "quit"
+                    map = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     dungeon.openroom(user)
+                    needUpdate = True
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.currentscreen = "room"
@@ -42,7 +51,8 @@ class LevelManager:
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
+                    self.currentscreen = "quit"
+                    map = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.currentscreen = "map"
