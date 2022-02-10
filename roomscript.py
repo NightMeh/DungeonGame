@@ -7,6 +7,7 @@ class Room:
     self.surroundingroomstotal = []
     self.surroundingrooms = []
     self.cleared = False
+    self.corridors = []
     #print("roomcreated",roomnum,roomtype,location)
 
   def findsurroundingroomstotal(self):
@@ -33,3 +34,7 @@ class Room:
 
     #print(self.surroundingrooms)
 
+class Corridor:
+  def __init__(self,type,centre,exactloc):
+      self.type = type
+      self.location = [centre,exactloc]

@@ -7,14 +7,12 @@ class LevelManager:
         self.currentscreen = "map"
         self.ifBattle = False
         
-        
 
     def map(self,dungeon,screen,user,clock):
         map = True
         screen.fill([0, 0, 0])
-        dungeon.drawrooms(screen)
         needUpdate = True
-        dungeon.drawcorridors(screen,dungeon.roomlist[1])
+        dungeon.drawcorridors(screen)
         while map:
             if needUpdate == True:
                 for x in range(len(dungeon.room)):

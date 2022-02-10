@@ -19,6 +19,11 @@ class Dungeon:
     self.roomlist = [currentroomimage,unclearedroomimage,entranceroomimage,treasureroomimage]
     for x in range(len(self.roomlist)):
       self.roomlist[x] = pygame.transform.scale(self.roomlist[x],(block_size/self.imageconstant,block_size/self.imageconstant))
+    corridor = pygame.image.load(r'Images\Rooms\Corridor\EmptyCorridor.png').convert()
+    eventcorridor = pygame.image.load(r'Images\Rooms\Corridor\EventCorridor.png').convert()
+    self.corridorlist = [corridor,eventcorridor]
+    for x in range(len(self.corridorlist)):
+      self.corridorlist[x] = pygame.transform.scale(self.corridorlist[x],(15,15))
 
     
 
@@ -56,8 +61,16 @@ class Dungeon:
   def drawimage(self,screen,location,image):
     locx = location[0]
     locy = location[1]
+    print("drawimageloc",locx,locy)
     offset = (self.block_size - (self.block_size / self.imageconstant))/2
     screen.blit(image, (((locx)*self.block_size)+offset,((locy)*self.block_size)+offset,self.block_size/self.imageconstant,self.block_size/self.imageconstant))
+    pygame.display.flip()
+
+  def drawcorridorimage(self,screen,location,image):
+    locx = location[0]
+    locy = location[1]
+    print("drawimageloc",locx,locy)
+    screen.blit(image, (((locx)*self.block_size)+self.block_size/2,((locy)*self.block_size)+self.block_size/2,self.block_size/self.imageconstant,self.block_size/self.imageconstant))
     pygame.display.flip()
 
   def drawdot(self,screen,location,colour):
@@ -161,8 +174,7 @@ class Dungeon:
       print("nah")
     return
 
-  def drawcorridors(self,screen,image):
-    spacebetweenrooms = self.block_size - (self.block_size / self.imageconstant)
+  def drawcorridors(self,screen):
     for x in range(len(self.room)):
       surroundlist2 = []
       surroundlist = self.findsurroundingsquares(self.room[x].roomlocation)
@@ -171,28 +183,11 @@ class Dungeon:
         if element in surroundlist and element in self.roomloc:
           surroundlist2.append(element)
       for item in range (len(surroundlist2)):
-        offset = spacebetweenrooms
-        offsetx = self.block_size/2
-        offsety = self.block_size/2
-        print(surroundlist2[item])
-        print(surroundlist2)
-        print([self.room[item].roomlocation[0],self.room[x].roomlocation[1]-1],[self.room[x].roomlocation[0]+1,self.room[x].roomlocation[1]],[self.room[x].roomlocation[0],self.room[x].roomlocation[1]+1],[self.room[x].roomlocation[0]-1,self.room[x].roomlocation[1]])
-        if surroundlist2[item] == [self.room[x].roomlocation[0],self.room[x].roomlocation[1]-1]:
-          offsety -= self.block_size/2
-          print("north")
-        elif surroundlist2[item] == [self.room[x].roomlocation[0]+1,self.room[x].roomlocation[1]]:
-          offsetx += self.block_size/2
-          print("east")
-        elif surroundlist2[item] == [self.room[x].roomlocation[0],self.room[x].roomlocation[1]+1]:
-          offsety = self.block_size/2
-          print("south")
-        elif surroundlist2[item] == [self.room[x].roomlocation[0]-1,self.room[x].roomlocation[1]]:
-          offsetx -= self.block_size/2
-          print("west")
-        else:
-          print("none")
-        pygame.draw.circle(screen,[255,255,255], (((surroundlist2[item][0])*self.block_size)+offsetx,((surroundlist2[item][1])*self.block_size)+offsety),self.block_size/10)
-        #print("room",x,surroundlist2,"location",self.room[x].roomlocation)
+        midpointbetweenroom = [(self.room[x].roomlocation[0]+surroundlist2[item][0])/2,(self.room[x].roomlocation[1]+surroundlist2[item][1])/2]
+        self.drawcorridorimage(screen,midpointbetweenroom,self.corridorlist[0])
+        corridor = roomscript.Corridor(type,self.room[x].roomlocation,midpointbetweenroom)
+        self.room[x].corridors.append(corridor)
+
       
       
 
