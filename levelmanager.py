@@ -18,11 +18,17 @@ class LevelManager:
                 for x in range(len(dungeon.room)):
                     if dungeon.room[x].roomtype == "entrance":
                         dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[2])
+                    elif dungeon.room[x].roomtype == "chest":
+                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[3])
+                    elif dungeon.room[x].roomtype == "exit":
+                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[4])
+                    elif dungeon.room[x].roomtype == "battle":
+                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[5])
+                    elif dungeon.room[x].cleared == False and (dungeon.room[x].roomtype != "entrance" or "exit" or "chest"):
+                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[1])
+                        needUpdate = False
                     if dungeon.room[x].roomlocation == dungeon.room[user.currentroom].roomlocation:
                         dungeon.drawimage(screen,dungeon.room[user.currentroom].roomlocation,dungeon.roomlist[0])
-                        needUpdate = False
-                    elif dungeon.room[x].roomlocation != dungeon.room[user.currentroom].roomlocation and dungeon.room[x].roomtype != "entrance":
-                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[1])
                         needUpdate = False
             pygame.display.flip()
             for event in pygame.event.get():

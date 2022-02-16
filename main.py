@@ -11,12 +11,13 @@ screen=pygame.display.set_mode([SCREENWIDTH, SCREENHEIGHT])
 screen.fill([0, 0, 0])
 pygame.display.flip()
 
-testroom = dungeon.Dungeon(10,9,16,80)
+testroom = dungeon.Dungeon(30,9,16,80)
 testroom.createdungeon(screen)
 user = player.Player(0)
 clock = pygame.time.Clock()
 run = True
 manager = levelmanager.LevelManager(user,testroom.room)
+testroom.mapsetup()
 
 while run:
     if manager.currentscreen == "map":

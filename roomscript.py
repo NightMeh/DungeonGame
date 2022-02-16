@@ -32,9 +32,8 @@ class Room:
         except:
           continue
 
-    #print(self.surroundingrooms)
 
 class Corridor:
-  def __init__(self,type,centre,exactloc):
+  def __init__(self,type,centre):
       self.type = type
-      self.location = [centre,exactloc]
+      self.location = [centre]
