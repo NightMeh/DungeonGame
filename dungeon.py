@@ -18,8 +18,9 @@ class Dungeon:
     entranceroomimage = pygame.image.load(r'Images\Rooms\Entrance.png').convert()
     exitroomimage = pygame.image.load(r'Images\Rooms\Exit.png').convert()
     battleroomimage = pygame.image.load(r'Images\Rooms\Battle.png').convert()
+    emptyroomimage = pygame.image.load(r'Images\Rooms\Empty.png').convert()
     currentroomimage = pygame.image.load(r'Images\Rooms\CurrentRoomIcon.png').convert_alpha()
-    self.roomlist = [currentroomimage,unclearedroomimage,entranceroomimage,treasureroomimage,exitroomimage,battleroomimage]
+    self.roomlist = [currentroomimage,unclearedroomimage,entranceroomimage,treasureroomimage,exitroomimage,battleroomimage,emptyroomimage]
     for x in range(len(self.roomlist)):
       self.roomlist[x] = pygame.transform.scale(self.roomlist[x],(block_size/self.imageconstant,block_size/self.imageconstant))
     corridor = pygame.image.load(r'Images\Rooms\Corridor\EmptyCorridor.png').convert()
@@ -57,7 +58,7 @@ class Dungeon:
     midloc = [midx,midy]
     print(midloc)
     roomcount = 1
-    self.room.append(roomscript.Room(roomcount,"entrance",[midx,midy]))
+    self.room.append(roomscript.Room(roomcount,"entrance",[midx,midy],self))
     return midloc,roomcount
 
   def drawimage(self,screen,location,image):
@@ -158,7 +159,7 @@ class Dungeon:
     #print("roomloc b4",roomloc)
     self.roomloc.append(newroomloc)
     #print("roomloc after",roomloc)
-    self.room.append(roomscript.Room(roomcount,"",newroomloc))
+    self.room.append(roomscript.Room(roomcount,"",newroomloc,self))
     return newroomloc,roomcount,failed
 
   def createdungeon(self,screen):
@@ -186,14 +187,19 @@ class Dungeon:
 
     return
 
-  def pressinsquare(self):
+  """def pressinsquare(self):
     position = pygame.mouse.get_pos()
     print(position)
     xloc = (position[0] // self.block_size)
     yloc = (position[1] // self.block_size)
     print(xloc,yloc)
     location = [xloc,yloc]
-    return location
+    return location"""
+  
+  def pressinsquare(self):
+    for x in range(len(self.room)):
+      if self.room[x].rect.collidepoint(pygame.mouse.get_pos()):
+        return self.room[x].roomlocation
 
   def openroom(self,user):
     location = self.pressinsquare()

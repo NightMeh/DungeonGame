@@ -6,6 +6,24 @@ class LevelManager:
         self.currentlayout = room
         self.currentscreen = "map"
         self.ifBattle = False
+
+    def updateMap(self,dungeon,screen,user):
+        for x in range(len(dungeon.room)):
+            if dungeon.room[x].roomtype == "entrance":
+                dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[2])
+            elif dungeon.room[x].roomtype == "chest":
+                dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[3])
+            elif dungeon.room[x].roomtype == "exit":
+                dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[4])
+            elif dungeon.room[x].cleared == False:
+                dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[1])
+            elif dungeon.room[x].cleared == True and dungeon.room[x].roomtype == "battle":
+                dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[5])
+            elif dungeon.room[x].cleared == True and (dungeon.room[x].roomtype != "entrance" or "chest" or "exit" or "battle"):
+                dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[6])
+            if dungeon.room[x].roomlocation == dungeon.room[user.currentroom].roomlocation:
+                dungeon.drawimage(screen,dungeon.room[user.currentroom].roomlocation,dungeon.roomlist[0])
+        return False
         
 
     def map(self,dungeon,screen,user,clock):
@@ -15,21 +33,7 @@ class LevelManager:
         dungeon.drawcorridors(screen)
         while map:
             if needUpdate == True:
-                for x in range(len(dungeon.room)):
-                    if dungeon.room[x].roomtype == "entrance":
-                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[2])
-                    elif dungeon.room[x].roomtype == "chest":
-                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[3])
-                    elif dungeon.room[x].roomtype == "exit":
-                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[4])
-                    elif dungeon.room[x].roomtype == "battle":
-                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[5])
-                    elif dungeon.room[x].cleared == False and (dungeon.room[x].roomtype != "entrance" or "exit" or "chest"):
-                        dungeon.drawimage(screen,dungeon.room[x].roomlocation,dungeon.roomlist[1])
-                        needUpdate = False
-                    if dungeon.room[x].roomlocation == dungeon.room[user.currentroom].roomlocation:
-                        dungeon.drawimage(screen,dungeon.room[user.currentroom].roomlocation,dungeon.roomlist[0])
-                        needUpdate = False
+                needUpdate = self.updateMap(dungeon,screen,user)
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -44,8 +48,7 @@ class LevelManager:
                         map = False
                     elif event.key == pygame.K_w:
                         dungeon.room[user.currentroom].cleared = True
-                        print(user.currentroom,"has been cleared")
-                        print(dungeon.room[user.currentroom].cleared)
+                        needUpdate = True
         clock.tick(60)
 
     def room(self,screen,clock):
