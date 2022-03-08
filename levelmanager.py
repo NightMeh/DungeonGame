@@ -1,4 +1,6 @@
 import pygame
+from dungeon import World
+from dungeon import Dungeon
 class LevelManager:
     def __init__(self,user,room):
         self.player = user
@@ -24,6 +26,9 @@ class LevelManager:
             if dungeon.room[x].roomlocation == dungeon.room[user.currentroom].roomlocation:
                 dungeon.drawimage(screen,dungeon.room[user.currentroom].roomlocation,dungeon.roomlist[0])
         return False
+
+    def updateWorld(self,world,screen,user):
+        world.drawtempgrid
         
 
     def map(self,dungeon,screen,user,clock):
@@ -51,15 +56,18 @@ class LevelManager:
                         needUpdate = True
         clock.tick(60)
 
-    def room(self,screen,clock):
+    def room(self,screen,clock,user,dungeon):
         screen.fill([0, 0, 0])
+        currentroom = World(dungeon.nrooms,dungeon.blockheight,dungeon.blockwidth,dungeon.block_size)
+        currentroom.CreateWorld(screen)
+        pygame.display.flip()
         room = True
         while room:
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.currentscreen = "quit"
-                    map = False
+                    room = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.currentscreen = "map"

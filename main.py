@@ -1,8 +1,9 @@
-import dungeon
-import roomscript
 import pygame
-import player
+
+import dungeon
 import levelmanager
+import player
+import roomscript
 
 SCREENWIDTH = 1280
 SCREENHEIGHT = 720
@@ -23,6 +24,6 @@ while run:
     if manager.currentscreen == "map":
         manager.map(testroom,screen,user,clock)
     elif manager.currentscreen == "room":
-        manager.room(screen,clock)
+        manager.room(screen,clock,user,testroom)
     elif manager.currentscreen == "quit":
         run = False

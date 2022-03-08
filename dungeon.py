@@ -1,8 +1,9 @@
+from email.generator import Generator
 import pygame
 import random
 import roomscript
 
-class Dungeon:
+class Generator:
   def __init__(self,rooms,blockheight,blockwidth,block_size):
     self.blockheight = blockheight
     self.blockwidth = blockwidth
@@ -13,22 +14,6 @@ class Dungeon:
     self.worlddata = []
     self.room = []
     self.imageconstant = 1.6
-    unclearedroomimage = pygame.image.load(r'Images\Rooms\UnclearedRoom.png').convert()
-    treasureroomimage = pygame.image.load(r'Images\Rooms\Treasure.png').convert()
-    entranceroomimage = pygame.image.load(r'Images\Rooms\Entrance.png').convert()
-    exitroomimage = pygame.image.load(r'Images\Rooms\Exit.png').convert()
-    battleroomimage = pygame.image.load(r'Images\Rooms\Battle.png').convert()
-    emptyroomimage = pygame.image.load(r'Images\Rooms\Empty.png').convert()
-    currentroomimage = pygame.image.load(r'Images\Rooms\CurrentRoomIcon.png').convert_alpha()
-    self.roomlist = [currentroomimage,unclearedroomimage,entranceroomimage,treasureroomimage,exitroomimage,battleroomimage,emptyroomimage]
-    for x in range(len(self.roomlist)):
-      self.roomlist[x] = pygame.transform.scale(self.roomlist[x],(block_size/self.imageconstant,block_size/self.imageconstant))
-    corridor = pygame.image.load(r'Images\Rooms\Corridor\EmptyCorridor.png').convert()
-    self.corridorlist = [corridor]
-    for x in range(len(self.corridorlist)):
-      self.corridorlist[x] = pygame.transform.scale(self.corridorlist[x],(15,15))
-
-    
 
   def drawtempgrid(self,screen):
     for y in range(self.blockheight):
@@ -69,6 +54,57 @@ class Dungeon:
     screen.blit(image, (((locx)*self.block_size)+offset,((locy)*self.block_size)+offset,self.block_size/self.imageconstant,self.block_size/self.imageconstant))
     pygame.display.flip()
 
+  def drawdot(self,screen,location,colour):
+
+    locx = location[0]
+    locy = location[1]
+    pygame.draw.rect(screen, colour, (((locx)*self.block_size)+self.block_size/4,((locy)*self.block_size)+self.block_size/4,self.block_size/2,self.block_size/2),2)
+    pygame.display.flip()
+
+  def findsurroundingsquares(self,centre):
+    surroundlist = []
+    surroundlist.append([centre[0]-1,centre[1]])
+    surroundlist.append([centre[0]+1,centre[1]])
+    surroundlist.append([centre[0],centre[1]-1])
+    surroundlist.append([centre[0],centre[1]+1])
+    return surroundlist
+
+  def chooserandom(self,surroundlist):
+    #print("surroundlist",)
+    randomnum = random.randint(0,len(surroundlist)-1)
+    return surroundlist[randomnum]
+
+
+
+
+  
+  def pressinsquare(self):
+    for x in range(len(self.room)):
+      if self.room[x].rect.collidepoint(pygame.mouse.get_pos()):
+        return self.room[x].roomlocation
+
+  def drawrooms(self,screen):
+    for x in range(self.nrooms+3):
+      self.drawdot(screen,self.room[x].roomlocation,[0,0,0])
+      
+class Dungeon(Generator):
+  def __init__(self,rooms,blockheight,blockwidth,block_size):
+    Generator.__init__(self,rooms,blockheight,blockwidth,block_size)
+    unclearedroomimage = pygame.image.load(r'Images\Rooms\UnclearedRoom.png').convert()
+    treasureroomimage = pygame.image.load(r'Images\Rooms\Treasure.png').convert()
+    entranceroomimage = pygame.image.load(r'Images\Rooms\Entrance.png').convert()
+    exitroomimage = pygame.image.load(r'Images\Rooms\Exit.png').convert()
+    battleroomimage = pygame.image.load(r'Images\Rooms\Battle.png').convert()
+    emptyroomimage = pygame.image.load(r'Images\Rooms\Empty.png').convert()
+    currentroomimage = pygame.image.load(r'Images\Rooms\CurrentRoomIcon.png').convert_alpha()
+    self.roomlist = [currentroomimage,unclearedroomimage,entranceroomimage,treasureroomimage,exitroomimage,battleroomimage,emptyroomimage]
+    for x in range(len(self.roomlist)):
+      self.roomlist[x] = pygame.transform.scale(self.roomlist[x],(block_size/self.imageconstant,block_size/self.imageconstant))
+    corridor = pygame.image.load(r'Images\Rooms\Corridor\EmptyCorridor.png').convert()
+    self.corridorlist = [corridor]
+    for x in range(len(self.corridorlist)):
+      self.corridorlist[x] = pygame.transform.scale(self.corridorlist[x],(15,15))
+
   def drawcorridorimage(self,screen,location,image,roomnum):
     currentlocation = self.room[roomnum].roomlocation
     locx = location[0]
@@ -96,27 +132,7 @@ class Dungeon:
     #print("drawimageloc",locx,locy)
     screen.blit(image, (newlocx,newlocy,self.block_size/self.imageconstant,self.block_size/self.imageconstant))
     pygame.display.flip()
-
-  def drawdot(self,screen,location,colour):
-
-    locx = location[0]
-    locy = location[1]
-    pygame.draw.rect(screen, colour, (((locx)*self.block_size)+self.block_size/4,((locy)*self.block_size)+self.block_size/4,self.block_size/2,self.block_size/2),2)
-    pygame.display.flip()
-
-  def findsurroundingsquares(self,centre):
-    surroundlist = []
-    surroundlist.append([centre[0]-1,centre[1]])
-    surroundlist.append([centre[0]+1,centre[1]])
-    surroundlist.append([centre[0],centre[1]-1])
-    surroundlist.append([centre[0],centre[1]+1])
-    return surroundlist
-
-  def chooserandom(self,surroundlist):
-    #print("surroundlist",)
-    randomnum = random.randint(0,len(surroundlist)-1)
-    return surroundlist[randomnum]
-
+      
   def addroom(self,surroundlist,screen,roomcount):
     surroundlistsecond = []
     tries = 0
@@ -161,7 +177,7 @@ class Dungeon:
     #print("roomloc after",roomloc)
     self.room.append(roomscript.Room(roomcount,"",newroomloc,self))
     return newroomloc,roomcount,failed
-
+  
   def createdungeon(self,screen):
     self.getworlddata()
     midloc,roomcount = self.drawmiddleroom(screen)
@@ -186,20 +202,6 @@ class Dungeon:
         roomamountcount+=1
 
     return
-
-  """def pressinsquare(self):
-    position = pygame.mouse.get_pos()
-    print(position)
-    xloc = (position[0] // self.block_size)
-    yloc = (position[1] // self.block_size)
-    print(xloc,yloc)
-    location = [xloc,yloc]
-    return location"""
-  
-  def pressinsquare(self):
-    for x in range(len(self.room)):
-      if self.room[x].rect.collidepoint(pygame.mouse.get_pos()):
-        return self.room[x].roomlocation
 
   def openroom(self,user):
     location = self.pressinsquare()
@@ -231,7 +233,6 @@ class Dungeon:
       self.room[roomlist[randnum]].roomtype = "battle"
       roomlist.remove(roomlist[randnum])
 
-
   def drawcorridors(self,screen):
     for x in range(len(self.room)):
       surroundlist2 = []
@@ -245,12 +246,75 @@ class Dungeon:
         corridor = roomscript.Corridor(type,self.room[x].roomlocation)
         self.room[x].corridors.append(corridor)
 
+
+class World(Generator):
+  def __init__ (self,rooms,blockheight,blockwidth,block_size):
+    self.blockheight = blockheight
+    self.blockwidth = blockwidth
+    self.block_size = block_size
+    self.randomroomaroundcentre = random.randint(1,4)
+    self.nrooms = rooms-self.randomroomaroundcentre
+    self.objectloc = []
+    self.worlddata = []
+    self.room = []
+    self.imageconstant = 1.6
+    self.citycount = 3
+    self.mountaincount = 4
+
+  """ def generateMountains(self,screen):
+    roomlist = []
+    chosenroom = [0,0]
+    chosenroom2 = [0,0]
+    randomroom = self.chooserandom(self.worlddata)
+    while (randomroom[0] >= self.blockwidth or randomroom[0] < 0) or (randomroom[1] >= self.blockheight or randomroom[1] < 0):
+      randomroom = self.chooserandom(self.worlddata)
+    roomlist.append(randomroom)
+    self.drawdot(screen,randomroom,[150, 75, 0])
+    print(randomroom)
+    surroundlist = self.findsurroundingsquares(randomroom)
+    for x in range(2):
+      while chosenroom2 == chosenroom:
+        chosenroom2 = self.chooserandom(surroundlist)
+        chosenroom = self.chooserandom(surroundlist)
+      print(chosenroom,chosenroom2)
+      self.drawdot(screen,randomroom,[150, 75, 0])
+      roomlist.append(chosenroom)
+      roomlist.append(chosenroom2)
+    for x in range(self.mountaincount-3):
+      chosenroom = self.chooserandom(roomlist)
+      while chosenroom[0] < 0 or chosenroom[1] < 0 or chosenroom[0] >= self.blockwidth or chosenroom[1] >= self.blockheight:
+        chosenroom = self.chooserandom(roomlist)
+      surroundlist = self.findsurroundingsquares(chosenroom)
+      for element in roomlist: #remove the rooms around new roomloc where are other rooms
+        if element in surroundlist:
+          surroundlist.remove(element)
+      chosenroom = self.chooserandom(surroundlist)
+      roomlist.append(chosenroom)
+      self.drawdot(screen,chosenroom,[150, 75, 0])"""
       
-      
+  def generateMountains(self,screen):
+    randomlocation = self.chooserandom(self.worlddata)
+    print(randomlocation)
+    self.drawdot(screen,randomlocation,[150,75,0])
+    self.objectloc.append(randomlocation)
+    firstsurroundlist = self.findsurroundingsquares(randomlocation)
+    print("surroundlist", firstsurroundlist)
+    randomlocaroundcentre = self.chooserandom(firstsurroundlist)
+    print(randomlocaroundcentre)
+    if randomlocaroundcentre[0] < 0 or randomlocaroundcentre[0] > (self.blockwidth-1) or randomlocaroundcentre[1] < 0 or randomlocaroundcentre[1] > (self.blockheight-1):
+
+      randomlocaroundcentre = self.chooserandom(firstsurroundlist)
+      print("failed, new loc",randomlocaroundcentre)
+
+    self.drawdot(screen,randomlocaroundcentre,[150,75,0])
 
 
+  def CreateWorld(self,screen):
+    self.getworlddata()
+    print(self.worlddata)
+    self.drawtempgrid(screen)
+    midloc,roomcount = self.drawmiddleroom(screen)
+    self.drawdot(screen,midloc,[255,255,255])
+    self.generateMountains(screen)
+    
 
-  def drawrooms(self,screen):
-    for x in range(self.nrooms+3):
-      self.drawdot(screen,self.room[x].roomlocation,[0,0,0])
-      
