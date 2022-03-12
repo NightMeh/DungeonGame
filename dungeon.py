@@ -81,11 +81,18 @@ class Generator:
   def pressinsquare(self):
     for x in range(len(self.room)):
       if self.room[x].rect.collidepoint(pygame.mouse.get_pos()):
+        print(self.room[x].roomlocation,self.room[x].roomnum)
         return self.room[x].roomlocation
 
   def drawrooms(self,screen):
     for x in range(self.nrooms+3):
       self.drawdot(screen,self.room[x].roomlocation,[0,0,0])
+  
+  def fillroom(self,screen,location,colour):
+    locx = location[0]
+    locy = location[1]
+    pygame.draw.rect(screen, colour, (locx*self.block_size,locy*self.block_size,self.block_size,self.block_size),0)
+    pygame.display.flip()
       
 class Dungeon(Generator):
   def __init__(self,rooms,blockheight,blockwidth,block_size):
@@ -218,20 +225,18 @@ class Dungeon(Generator):
   def mapsetup(self):
     roomamount = len(self.room)
     roomlist = []
-    for x in range(1,roomamount-1):
+    for x in range(1,roomamount):
       roomlist.append(x)
+    self.room[0].roomtype = "entrance"
+    print(roomlist)
+    self.room[len(roomlist)].roomtype = "exit"
+    roomlist.remove((len(roomlist)))
+    print(roomlist)
+    for x in range(len(roomlist)):
+      self.room[x+1].roomtype = "battle"
     print(len(roomlist))
-    randnum = random.randint(round(len(roomlist)/2),len(roomlist)-1)
-    self.room[roomlist[randnum]].roomtype = "exit"
-    roomlist.remove(roomlist[randnum])
-    for x in range(round(len(roomlist)*0.15)):
-      randnum = random.randint(1,len(roomlist)-1)
-      self.room[roomlist[randnum]].roomtype = "chest"
-      roomlist.remove(roomlist[randnum])
-    for x in range(round(len(roomlist)*0.75)):
-      randnum = random.randint(1,len(roomlist)-1)
-      self.room[roomlist[randnum]].roomtype = "battle"
-      roomlist.remove(roomlist[randnum])
+    print(self.room[0].roomtype)
+    
 
   def drawcorridors(self,screen):
     for x in range(len(self.room)):
@@ -259,7 +264,8 @@ class World(Generator):
     self.room = []
     self.imageconstant = 1.6
     self.citycount = 3
-    self.mountaincount = 4
+    self.mountaincluster = 2
+    self.mountaincount = 3
 
   """ def generateMountains(self,screen):
     roomlist = []
@@ -293,20 +299,33 @@ class World(Generator):
       self.drawdot(screen,chosenroom,[150, 75, 0])"""
       
   def generateMountains(self,screen):
+    failcount = 0
     randomlocation = self.chooserandom(self.worlddata)
-    print(randomlocation)
-    self.drawdot(screen,randomlocation,[150,75,0])
+
     self.objectloc.append(randomlocation)
-    firstsurroundlist = self.findsurroundingsquares(randomlocation)
-    print("surroundlist", firstsurroundlist)
-    randomlocaroundcentre = self.chooserandom(firstsurroundlist)
-    print(randomlocaroundcentre)
-    if randomlocaroundcentre[0] < 0 or randomlocaroundcentre[0] > (self.blockwidth-1) or randomlocaroundcentre[1] < 0 or randomlocaroundcentre[1] > (self.blockheight-1):
 
-      randomlocaroundcentre = self.chooserandom(firstsurroundlist)
-      print("failed, new loc",randomlocaroundcentre)
+    for x in range(self.mountaincount):
+      surroundlist = self.findsurroundingsquares(randomlocation)
+      print("surroundlist", surroundlist)
+      for element in self.objectloc:
+        if element in surroundlist:
+          surroundlist.remove(element)
+      randomlocaroundcentre = self.chooserandom(surroundlist)
+      print(randomlocaroundcentre)
 
-    self.drawdot(screen,randomlocaroundcentre,[150,75,0])
+      while randomlocaroundcentre[0] < 0 or randomlocaroundcentre[0] > (self.blockwidth-1) or randomlocaroundcentre[1] < 0 or randomlocaroundcentre[1] > (self.blockheight-1):
+        surroundlist.remove(randomlocaroundcentre)
+        failcount +=1
+        randomlocaroundcentre = self.chooserandom(surroundlist)
+        print("failed, new loc",randomlocaroundcentre)
+        if failcount == 4:
+          return True
+      
+      self.objectloc.append(randomlocaroundcentre)
+      self.fillroom(screen,randomlocation,[150,75,0])
+      randomlocation = randomlocaroundcentre
+    self.fillroom(screen,randomlocaroundcentre,[150,75,0])
+    return False
 
 
   def CreateWorld(self,screen):
@@ -315,6 +334,9 @@ class World(Generator):
     self.drawtempgrid(screen)
     midloc,roomcount = self.drawmiddleroom(screen)
     self.drawdot(screen,midloc,[255,255,255])
-    self.generateMountains(screen)
+    for x in range(self.mountaincluster):
+      failed = True
+      while failed:
+        failed = self.generateMountains(screen)
     
 

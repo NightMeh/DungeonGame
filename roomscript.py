@@ -38,6 +38,12 @@ class Room:
         except:
           continue
 
+class City:
+  def __init__(self,location):
+    self.location = location
+    self.alive = True
+
+
 
 class Corridor:
   def __init__(self,type,centre):
