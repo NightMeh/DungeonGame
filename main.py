@@ -6,13 +6,13 @@ import player
 import roomscript
 
 SCREENWIDTH = 1280
-SCREENHEIGHT = 720
+SCREENHEIGHT = 800
 screen=pygame.display.set_mode([SCREENWIDTH, SCREENHEIGHT])
 
 screen.fill([0, 0, 0])
 pygame.display.flip()
 
-testroom = dungeon.Dungeon(30,9,16,80)
+testroom = dungeon.Dungeon(10,5,8,160)
 testroom.createdungeon(screen)
 user = player.Player(0)
 clock = pygame.time.Clock()

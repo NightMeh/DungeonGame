@@ -33,7 +33,7 @@ class LevelManager:
 
     def map(self,dungeon,screen,user,clock):
         map = True
-        screen.fill([0, 0, 0])
+        screen.fill([86, 125, 70])
         needUpdate = True
         dungeon.drawcorridors(screen)
         while map:
@@ -57,9 +57,9 @@ class LevelManager:
         clock.tick(60)
 
     def room(self,screen,clock,user,dungeon):
-        screen.fill([0, 0, 0])
-        currentroom = World(dungeon.nrooms,dungeon.blockheight,dungeon.blockwidth,dungeon.block_size)
-        currentroom.CreateWorld(screen)
+        screen.fill([86, 125, 70])
+        currentroom = World(dungeon.nrooms,dungeon.blockheight*2,dungeon.blockwidth*2,dungeon.block_size/2)
+        currentroom.createworld(screen)
         pygame.display.flip()
         room = True
         while room:

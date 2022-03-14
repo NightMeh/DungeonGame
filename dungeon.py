@@ -97,6 +97,7 @@ class Generator:
 class Dungeon(Generator):
   def __init__(self,rooms,blockheight,blockwidth,block_size):
     Generator.__init__(self,rooms,blockheight,blockwidth,block_size)
+    self.newcorridorsize = 32
     unclearedroomimage = pygame.image.load(r'Images\Rooms\UnclearedRoom.png').convert()
     treasureroomimage = pygame.image.load(r'Images\Rooms\Treasure.png').convert()
     entranceroomimage = pygame.image.load(r'Images\Rooms\Entrance.png').convert()
@@ -110,7 +111,7 @@ class Dungeon(Generator):
     corridor = pygame.image.load(r'Images\Rooms\Corridor\EmptyCorridor.png').convert()
     self.corridorlist = [corridor]
     for x in range(len(self.corridorlist)):
-      self.corridorlist[x] = pygame.transform.scale(self.corridorlist[x],(15,15))
+      self.corridorlist[x] = pygame.transform.scale(self.corridorlist[x],(self.newcorridorsize,self.newcorridorsize))
 
   def drawcorridorimage(self,screen,location,image,roomnum):
     currentlocation = self.room[roomnum].roomlocation
@@ -121,20 +122,20 @@ class Dungeon(Generator):
     location = [locx,locy]
     if location == [currentlocation[0],currentlocation[1]-1]:
       #print("north")
-      newlocx = (currentlocation[0]*self.block_size + self.block_size/2)-8
-      newlocy = ((currentlocation[1]*self.block_size + self.block_size/2)- (self.block_size/self.imageconstant)/2) - 15
+      newlocx = (currentlocation[0]*self.block_size + self.block_size/2)-self.newcorridorsize/2
+      newlocy = ((currentlocation[1]*self.block_size + self.block_size/2)- (self.block_size/self.imageconstant)/2) - self.newcorridorsize
     elif location == [currentlocation[0]+1,currentlocation[1]]:
       #print("east")
       newlocx = (currentlocation[0]*self.block_size + self.block_size/2)+ (self.block_size/self.imageconstant)/2
-      newlocy = (currentlocation[1]*self.block_size + self.block_size/2)-8
+      newlocy = (currentlocation[1]*self.block_size + self.block_size/2)-self.newcorridorsize/2
     elif location == [currentlocation[0],currentlocation[1]+1]:
       #print("south")
-      newlocx = (currentlocation[0]*self.block_size + self.block_size/2)-8
+      newlocx = (currentlocation[0]*self.block_size + self.block_size/2)-self.newcorridorsize/2
       newlocy = (currentlocation[1]*self.block_size + self.block_size/2)+(self.block_size/self.imageconstant)/2
     elif location == [currentlocation[0]-1,currentlocation[1]]:
       #print("west")
-      newlocx = ((currentlocation[0]*self.block_size + self.block_size/2)- (self.block_size/self.imageconstant)/2)- 15
-      newlocy = (currentlocation[1]*self.block_size + self.block_size/2)-8
+      newlocx = ((currentlocation[0]*self.block_size + self.block_size/2)- (self.block_size/self.imageconstant)/2)- self.newcorridorsize
+      newlocy = (currentlocation[1]*self.block_size + self.block_size/2)-self.newcorridorsize/2
     
     #print("drawimageloc",locx,locy)
     screen.blit(image, (newlocx,newlocy,self.block_size/self.imageconstant,self.block_size/self.imageconstant))
@@ -266,37 +267,6 @@ class World(Generator):
     self.citycount = 3
     self.mountaincluster = 2
     self.mountaincount = 3
-
-  """ def generateMountains(self,screen):
-    roomlist = []
-    chosenroom = [0,0]
-    chosenroom2 = [0,0]
-    randomroom = self.chooserandom(self.worlddata)
-    while (randomroom[0] >= self.blockwidth or randomroom[0] < 0) or (randomroom[1] >= self.blockheight or randomroom[1] < 0):
-      randomroom = self.chooserandom(self.worlddata)
-    roomlist.append(randomroom)
-    self.drawdot(screen,randomroom,[150, 75, 0])
-    print(randomroom)
-    surroundlist = self.findsurroundingsquares(randomroom)
-    for x in range(2):
-      while chosenroom2 == chosenroom:
-        chosenroom2 = self.chooserandom(surroundlist)
-        chosenroom = self.chooserandom(surroundlist)
-      print(chosenroom,chosenroom2)
-      self.drawdot(screen,randomroom,[150, 75, 0])
-      roomlist.append(chosenroom)
-      roomlist.append(chosenroom2)
-    for x in range(self.mountaincount-3):
-      chosenroom = self.chooserandom(roomlist)
-      while chosenroom[0] < 0 or chosenroom[1] < 0 or chosenroom[0] >= self.blockwidth or chosenroom[1] >= self.blockheight:
-        chosenroom = self.chooserandom(roomlist)
-      surroundlist = self.findsurroundingsquares(chosenroom)
-      for element in roomlist: #remove the rooms around new roomloc where are other rooms
-        if element in surroundlist:
-          surroundlist.remove(element)
-      chosenroom = self.chooserandom(surroundlist)
-      roomlist.append(chosenroom)
-      self.drawdot(screen,chosenroom,[150, 75, 0])"""
       
   def generateMountains(self,screen):
     failcount = 0
@@ -328,7 +298,7 @@ class World(Generator):
     return False
 
 
-  def CreateWorld(self,screen):
+  def createworld(self,screen):
     self.getworlddata()
     print(self.worlddata)
     self.drawtempgrid(screen)
